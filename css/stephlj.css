@@ -1,11 +1,11 @@
 /* Custom css for stephlj.github.io */
 
+.navbar {
+    background-image:url("/static/img/SFbanner.png");
+}
+
 body {
     font_size: 100%;
-    background-image: url("/static/img/SFbanner.png");
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center bottom;
 }
 
 p {
