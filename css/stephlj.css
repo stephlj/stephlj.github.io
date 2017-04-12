@@ -2,8 +2,9 @@
 
 body {
     font_size: 100%;
-    background-image:url("/static/img/SFbanner.png")
+    background-image: url("/static/img/SFbanner.png");
     background-repeat: no-repeat;
+    background-attachment: fixed;
     width:100%;
     min-height:189px;
 }
