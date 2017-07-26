@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title></title>
+    <title>Stephanie L. Johnson on Stephanie L. Johnson</title>
     <link>http://stephlj.github.io/index.xml</link>
-    <description>Recent content on </description>
+    <description>Recent content in Stephanie L. Johnson on Stephanie L. Johnson</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
@@ -15,6 +15,8 @@
       
       <guid>http://stephlj.github.io/tutorials/HistosVsCDFs/</guid>
       <description>
+
+&lt;p&gt;&lt;a href=&#34;https://stephlj.github.io&#34;&gt;&amp;lt; &lt;em&gt;Back to homepage&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;A question we often want to ask of single-molecule data is whether the
 data fall into one or more clusters. For example, perhaps we have a

@@ -1,7 +1,7 @@
 /* Custom css for stephlj.github.io */
 
 .navbar {
-    background-image:url("/static/img/SFbanner.png");
+    background-color: rgb(230,242,255);
 }
 
 body {
