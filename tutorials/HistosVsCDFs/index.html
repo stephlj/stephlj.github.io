@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme" content="hugo-academic">
+  <meta name="generator" content="Hugo 0.18.1" />
+  <meta name="author" content="Stephanie L. Johnson">
+  <meta name="description" content="Postdoctoral fellow in Biochemistry and Biophysics">
+
+  
+  
+  
+  
+    
+    
+    <link rel="stylesheet" href="/css/highlight.min.css">
+    
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/academicons.min.css">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:400,700|Merriweather|Roboto+Mono">
+  <link rel="stylesheet" href="/css/hugo-academic.css">
+  
+  <link rel="stylesheet" href="/css/stephlj.css">
+  
+
+  <link rel="alternate" href="http://stephlj.github.io/index.xml" type="application/rss+xml" title="">
+  <link rel="feed" href="http://stephlj.github.io/index.xml" type="application/rss+xml" title="">
+
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/apple-touch-icon.png">
+
+  <link rel="canonical" href="http://stephlj.github.io/tutorials/HistosVsCDFs/">
+
+  
+
+  <title>Exploring the differences between histograms, KDEs and CDFs | </title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#navbar-main" data-offset="71">
+
+<nav class="navbar navbar-default navbar-fixed-top" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+              data-target=".navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"></a>
+    </div>
+
+    
+    <div class="collapse navbar-collapse">
+
+      
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+
+        <li class="nav-item">
+          <a href="/#about">
+            
+            <span>About</span>
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        <li class="nav-item">
+          <a href="/#publications">
+            
+            <span>Publications</span>
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        <li class="nav-item">
+          <a href="/#CV">
+            
+            <span>CV</span>
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        <li class="nav-item">
+          <a href="/#code">
+            
+            <span>Code</span>
+          </a>
+        </li>
+
+        
+        
+
+        
+
+        <li class="nav-item">
+          <a href="/#tutorials">
+            
+            <span>Tutorials</span>
+          </a>
+        </li>
+
+        
+        
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+
+  <div class="article-container">
+    <h1 itemprop="name">Exploring the differences between histograms, KDEs and CDFs</h1>
+    
+
+<div class="article-metadata">
+
+  <span class="article-date">
+    <time datetime="0001-01-01 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+      
+    <div class="article-style" itemprop="articleBody">
+      
+
+<p>A question we often want to ask of single-molecule data is whether the
+data fall into one or more clusters. For example, perhaps we have a
+single-molecule FRET system in which each molecule we observe explores
+either two or three states. We might want to ask whether all of the
+molecules in a population explore the same three states, or if the
+molecules that explore only two states share either state with the
+three-state population. Perhaps the population-averaged FRET values of
+the different states, if they do form clusters, tells us something
+interesting about our system.</p>
+
+<p>Here we will compare three different ways of plotting the data to get a
+sense for how the data cluster: histograms, kernel density estimation
+(KDE) plots, and cumulative distribution functions (CDFs). Histograms
+are the most commonly used tool for this purpose, because they are the
+most intuitive, but they are the least quantitative. CDFs offer the best
+tool, especially for comparisons between data sets, but are less
+intuitive.</p>
+
+<p>The code in this tutorial can be found in this <a href="https://gist.github.com/stephlj/a818b8d777092dfb08261803bf23ce2f">gist</a>.</p>
+
+<h2 id="generate-data">Generate data</h2>
+
+<p>We will start with a synthetic data set drawn from three Gaussians, parameterized by
+mu1 = 0.45, std1 = 0.02, mu2 = 0.75, std2 = 0.03, mu3 = 0.6, std3 = 0.02, where each
+mu represents the mean of one of the Gaussians and std is the standard deviation.</p>
+
+<p>Our dataset will consist of 100 samples drawn from the first Gaussian, 200 samples from the
+second Gaussian, and 50 samples from the third Gaussian. To draw these samples, we will generate
+100 random numbers uniformly sampled from the interval [0,1] and compute the inverse CDF
+of our Gaussian distrubtion for each 100 numbers (see below for a description of CDFs):</p>
+
+<pre><code class="language-matlab">mu1 = 0.45;
+std1 = 0.02;
+n_samples1 = 100;
+InvCDF = @(x,mu,std)(mu+std.*sqrt(2).*erfinv(2.*x-1));
+n = rand(1,n_samples1);
+data_cluster_1 = InvCDF(n,mu1,std1)+randn(1,n_samples1)./50;
+</code></pre>
+
+<p>Note that in the last line, we use randn to add some noise, so that our synthetic data
+aren&rsquo;t perfectly Gaussian distributed. We repeat the same but with mu2, std2, mu3, and std3
+as given above, and with n_samples2 = 200 and n_samples3 = 50.</p>
+
+<p>Finally we combine these three samplings to obtain our synthetic dataset:</p>
+
+<pre><code class="language-matlab">data = [data_cluster_1,data_cluster_2,data_cluster_3];
+</code></pre>
+
+<h2 id="compare-histograms-kdes-and-cdfs-of-data">Compare histograms, KDEs, and CDFs of data</h2>
+
+<p>If we call Matlab&rsquo;s hist function with default parameters, we can observe
+our three Gaussian clusters in the data (though deciding between two and
+three clusters, if we didn&rsquo;t know there were three to start with, might
+be difficult; and it also depends on the outcome of the calls to randn in
+generating <data>). For example,</p>
+
+<pre><code class="language-matlab">figure
+hist(data)
+xlabel('Value of data')
+ylabel('Counts')
+set(gca,'Fontsize',14)
+</code></pre>
+
+<p>generates the following figure (again, subject to the noise generated by randn):</p>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_Hist1.png" />
+    
+    
+    <figcaption>
+        <h4>Histogram of &lt;data&gt;, using Matlab&#39;s default parameters.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>But what if we had chosen a different set of bins, say, bins 0.075 apart,
+starting at 0 and ending at 1?</p>
+
+<p>First, we note a nice feature of histograms, not shared by the KDEs described below, is
+that they can be normalized, so that they integrate to 1. To normalize, we divide by the
+total number of counts (sum(n)). But then we must change the y-axis label to frequency,
+not counts:</p>
+
+<pre><code class="language-matlab">figure
+[n,xout] = hist(data,0:0.075:1);
+n = n./sum(n);
+bar(xout,n)
+xlabel('Value of data')
+ylabel('Frequency')
+set(gca,'Fontsize',14)
+xlim([0 1])
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_Hist2.png" />
+    
+    
+    <figcaption>
+        <h4>Histogram of &lt;data&gt;, using custom bin widths and positions.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Note: It is not the case that Matlab&rsquo;s default parameters choose the best bins
+to separate clusters in the data. Matlab always defaults to 10 equally
+spaced bins from min(data) to max(data). If you&rsquo;re unconvinced that
+this default is not always the best choice, play around with the
+parameters of the three Gaussians, the amount of noise, and the bin
+widths and locations.</p>
+
+<p>Consider if <data> were a data set you had collected experimentally, and
+you didn&rsquo;t know how many clusters or populations to expect. How would you
+know whether 10 equally spaced bins or bins at 0:0.1:1 was giving you the
+&ldquo;right&rdquo; answer? If you had a second data set, collected under a different
+condition (say, looking at activity of a mutant version of your protein
+of interest), how would you know what bins to choose to best compare
+them?</p>
+
+<h3 id="kdes">KDEs:</h3>
+
+<p>An alternative to histograms is a kernel density estimation (KDE) plot.
+The idea of a KDE is: for every data point, plot a little Gaussian whose
+mean is the value of that data point, and then sum all the Gaussians
+together. (This kind of KDE has a Gaussian kernel; you can use a
+different distribution as your kernel). The only parameter to vary, then,
+is the standard deviation of the little Gaussians, which is called the
+bandwidth.</p>
+
+<p>Let&rsquo;s start with a bandwidth of 0.05:</p>
+
+<pre><code class="language-matlab">[f1,x1] = ksdensity(data,'bandwidth',0.05);
+figure
+plot(x1,f1,'-b','Linewidth',2)
+xlabel('Value of data')
+ylabel('Density') 
+set(gca,'Fontsize',14)
+</code></pre>
+
+<p>As noted in passing above, KDEs are not normalized, which makes
+quantitative comparisions between data sets difficult. Thus the y-label of &ldquo;Density&rdquo;.</p>
+
+<p>What happens when we vary the bandwidth?</p>
+
+<pre><code class="language-matlab">[f2,x2] = ksdensity(data,'bandwidth',0.1);
+[f3,x3] = ksdensity(data,'bandwidth',0.01);
+[f4,x4] = ksdensity(data,'bandwidth',0.001);
+hold on
+plot(x2,f2,'-r','Linewidth',2)
+plot(x3,f3,'-g','Linewidth',2)
+plot(x4,f4,'-k')
+legend('bw = 0.05','bw = 0.1','bw = 0.01','bw = 0.001')
+xlim([0 1])
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_KDEs.png" />
+    
+    
+    <figcaption>
+        <h4>Kernel density estimations of &lt;data&gt; with various bandwidths.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>A good way of determining how robustly you can separate different
+clusters of data is to vary the bandwidth, and see which peaks appear and
+disappear.</p>
+
+<p>But your interpretation of your data is still subject to a smoothing
+parameter.</p>
+
+<h3 id="cdfs">CDFs</h3>
+
+<p>A cumulative density function (CDF) measures the integral under a PDF
+(probability density function) from -Inf up to a certain value.
+The PDF is the expression we usually associate with common distributions,
+like the Gaussian (normal) distribution, whose PDF is P(x) = 1/sqrt(pi*c)*exp(-(x-mu)^2/c).
+The way to think about the information in a CDF is that for a value x,
+CDF(x) tells you how many counts have that x value or a smaller x value.</p>
+
+<p>CDFs have no smoothing or binning parameters to vary, and therefore
+represent a good way to compare between data sets:</p>
+
+<pre><code class="language-matlab">[c,xc] = ecdf(data);
+figure
+plot(xc,c,'Linewidth',2)
+xlabel('Value of data')
+ylabel('Cumulative probability')
+set(gca,'Fontsize',14)
+ylim([0 1])
+xlim([0 1])
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_CDF.png" />
+    
+    
+    <figcaption>
+        <h4>Cumulative probability of &lt;data&gt;.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>To gain a more intuitive understanding of what the CDF represents, we can
+plot them on the same set of axes as a KDE:</p>
+
+<pre><code class="language-matlab">figure
+ax = plotyy(x3,f3,xc,c);
+xlabel('Value of data')
+ylabel(ax(2),'Cumulative probability')
+set(ax(2),'Fontsize',14)
+ylabel(ax(1),'Density')
+set(ax(1),'Fontsize',14)
+ylim(ax(1),[0 8])
+xlim(ax(1),[0 1])
+xlim(ax(2),[0 1])
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_CDFvsKDE.png" />
+    
+    
+    <figcaption>
+        <h4>Cumulative probability of &lt;data&gt; compared to a KDE.</h4>
+        
+    </figcaption>
+    
+</figure>
+
+
+<p>Note that peaks in the KDEs become steep slopes in the CDFs. That is,
+clusters in the data appear as steep slopes, where counts are
+accumulating quickly in the CDF at a certain x value. From this plot we might feel confident
+concluding that there are at least two clusters in the data, and likely a third, less
+populated, cluster in between the two main clusters.</p>
+
+<h2 id="data-cluster-assignment">Data cluster assignment</h2>
+
+<p>As a concluding remark, we note that a related problem to the identification of clusters
+in a data set is the assignment of each data point to a particular cluster. This is a difficult
+task, especially when data clusters overlap (more than in the sample data here). Often
+the solution in the single-molecule field is to assign data to clusters based on a threshold
+value (which is usually determined from a histogram). For example, based on the first histogram,
+we might say that anything with a value greater than 0.7 is in one cluster, and anything
+with value less than 0.7 is in a second. This works well for clusters that are well-separated,
+and has the advantage of being relatively quick and easy. However, for less well-separated data,
+an alternative would be to fit a combination of PDFs that we think describe the data well
+(so in our example here, three Gaussians) to the data set, and then for every data point,
+compute the probability that a particular value was drawn from each of the three Gaussians. Then we
+could assign each data point to the cluster for which its probability mass was largest. An
+example is given at the end of the <a href="https://gist.github.com/stephlj/a818b8d777092dfb08261803bf23ce2f">gist</a>.</p>
+
+    </div>
+  </div>
+
+</article>
+
+<div class="container">
+  <nav>
+  <ul class="pager">
+    
+
+    
+  </ul>
+</nav>
+
+</div>
+
+<div class="article-container">
+  
+
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="powered-by">
+
+      
+
+      Powered by the <a href="https://github.com/gcushen/hugo-academic" target="_blank">Academic
+      theme</a> for <a href="http://gohugo.io" target="_blank">Hugo</a>.
+
+      <span class="pull-right" aria-hidden="true">
+        <a href="#" id="back_to_top">
+          <span class="button_icon">
+            <i class="fa fa-chevron-up fa-2x"></i>
+          </span>
+        </a>
+      </span>
+
+    </p>
+  </div>
+</footer>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.18.4/TweenMax.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/latest/plugins/ScrollToPlugin.min.js"></script>
+    <script src="/js/jquery-1.12.3.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/isotope.pkgd.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.1/imagesloaded.pkgd.min.js"></script>
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+
+    
+    
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+      
+
+      
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+
+  </body>
+</html>
+

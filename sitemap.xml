@@ -4,12 +4,27 @@
     
     
     <url>
+      <loc>http://stephlj.github.io/tutorials/HistosVsCDFs/</loc>
+    </url>
+    
+  
+    
+    
+    <url>
       <loc>http://stephlj.github.io/</loc>
       <priority>0</priority>
     </url>
     
   
     
+    
+  
+    
+    
+    <url>
+      <loc>http://stephlj.github.io/tutorials/</loc>
+      <priority>0</priority>
+    </url>
     
   
 </urlset>
