@@ -1,5 +1,15 @@
 /* Custom css for stephlj.github.io */
 
+a,
+a:visited,
+h3.article-title a:hover {
+    color: rgb(0, 149, 235);
+}
+
+a:hover {
+    color: rgb(0, 149, 235);
+}
+
 .navbar {
     background-color: rgb(230,242,255);
 }
