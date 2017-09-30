@@ -290,5 +290,462 @@ example is given at the end of the &lt;a href=&#34;https://gist.github.com/steph
 </description>
     </item>
     
+    <item>
+      <title>Are my data exponentially distributed?</title>
+      <link>http://stephlj.github.io/tutorials/Exponentiality/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://stephlj.github.io/tutorials/Exponentiality/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://stephlj.github.io&#34;&gt;&amp;lt; &lt;em&gt;Back to homepage&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;When we measure a process that occurs in a biological system, the resulting distribution
+of samples is often best described by an exponential distribution.
+This is because we are often measuring an event that has some likelihood &lt;em&gt;k&lt;/em&gt; of occurring
+at each time instance. Think, for example, of radioactive decay: at each point in time, each
+atom in the sample has some probability of decaying in that time point. If we were to
+measure how long it took for each atom to decay, the distribution of &amp;ldquo;wait times&amp;rdquo; we obtain
+would be exponentially distributed. The average time to decay would be 1/&lt;em&gt;k&lt;/em&gt;. (But some atoms
+would decay right away, while others would take much longer than 1/&lt;em&gt;k&lt;/em&gt; to decay.)&lt;/p&gt;
+
+&lt;p&gt;Very often in biology the process we are observing is
+the result of several underlying microscopic events, which we cannot observe directly. For
+example, an enzyme acting on its substrate would first bind the substrate, a process described
+by one rate constant &lt;em&gt;k1&lt;/em&gt; (i.e., at each time step&amp;ndash;say, during each second&amp;ndash;the enzyme would
+have some likelihood of binding the substrate, and &lt;em&gt;k1&lt;/em&gt; would have units of per second).
+Then perhaps a conformational change needs to occur, a process that also has some (different)
+likelihood per second of occurring. And then substrate would be converted to product,
+with yet another likelihood per second of occurring. If we measured the times at which
+product was formed for each substrate molecule in the sample, we would find the distribution
+of times from substrate to product to be exponentially distributed&amp;ndash;but not singly
+exponentially distributed. We would instead need some kind of mixture of exponentials
+to describe the process.&lt;/p&gt;
+
+&lt;p&gt;Most often our experiments only have the resolution to differentiate between one or two
+exponential processes (or perhaps most strictly, one or more). That is, it&amp;rsquo;s easiest to
+determine whether the data are not well described by a single exponential; but whether they
+are best described by some combination of two exponentials, or three, or more, is usually
+not possible, in the absence of other information about the system. In the above example,
+if we know we are at concentrations such that enzyme is saturating over substrate, then
+the binding equilibrium will be effectively shifted to all bound and the time to bind may be
+negligible though I have to check that with Geeta.&lt;/p&gt;
+
+&lt;p&gt;Therefore this tutorial will focus on distinguishing between a single exponential distribution,
+and two kinds of &amp;ldquo;double&amp;rdquo; exponentials. &amp;ldquo;Double exponential&amp;rdquo; or &amp;ldquo;bi-exponential&amp;rdquo; is an
+under-specified, non-technical term frequently encountered in the single-molecule literature;
+it usually refers to a &lt;em&gt;hypoexponential&lt;/em&gt; distribution with two terms.
+The other useful &amp;ldquo;double exponential&amp;rdquo; is the &lt;em&gt;hyperexponential&lt;/em&gt; distribution.&lt;/p&gt;
+
+&lt;p&gt;The code in this tutorial can be found in this &lt;a href=&#34;https://gist.github.com/stephlj/???&#34;&gt;gist&lt;/a&gt; which doesn&amp;rsquo;t exist yet.&lt;/p&gt;
+
+&lt;h2 id=&#34;math-part-1-types-of-exponential-processes&#34;&gt;Math, part 1: Types of exponential processes&lt;/h2&gt;
+
+&lt;p&gt;A &lt;em&gt;hypoexponential&lt;/em&gt; describes a process in which first one thing has to occur, and then a
+second thing has to occur&amp;ndash;that is, two sequential events, where one event must occur
+before the other. This is the more common type of process we encounter.&lt;/p&gt;
+
+&lt;p&gt;The CDF (see also &lt;a href=&#34;https://stephlj.github.io/tutorials/HistosVsCDFs&#34;&gt;https://stephlj.github.io/tutorials/HistosVsCDFs&lt;/a&gt;) of a two-term
+hypoexponential has the form&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-latex&#34;&gt;Cum_Density_Hypo(w) = 1-(k2/(k2-k1))*exp(-k1*w)+(k1/(k2-k1))*exp(-k2*w),
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;where &lt;em&gt;w&lt;/em&gt; is the wait time, and &lt;em&gt;k1&lt;/em&gt; and &lt;em&gt;k2&lt;/em&gt; are the rate constants that describe the two
+sequential events that need to occur and have units of per time. This expression gives
+the probability of having a wait time of &lt;em&gt;w&lt;/em&gt; or fewer seconds (or equivalent units).
+The PDF of this distribution is&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-latex&#34;&gt;Probability_Hypo(w) = ((k1*k2)/(k1-k2))*(exp(-k2*w)-exp(-k1*w)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For a hypoexponential, the two rate constants that best describe the data can be estimated
+by&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-latex&#34;&gt;k1 = (2/\mu)(1+\sqrt{1+2(\nu^2/\mu^2-1)})^{-1};
+k2 = (2/\mu)(1-\sqrt{1+2(\nu^2/\mu^2-1)})^{-1};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;where \mu is the mean of the data and \nu is the standard deviation.&lt;/p&gt;
+
+&lt;p&gt;The &lt;em&gt;hyperexponential&lt;/em&gt; describes a process with a branching pathway: &lt;em&gt;either&lt;/em&gt; one thing must
+occur, &lt;em&gt;or&lt;/em&gt; a different thing. My favorite example of this kind of process is a mixed population
+in your sample. Say, for example, you purified a multi-subunit enzyme, but part of your sample
+lost subunits in the purification process. Perhaps these lost subunits change the enzyme&amp;rsquo;s rate;
+then your sample of enzyme would consist of a faster population and a slower population, and
+your measurement of the wait time to product formation would be best described by a hyperexponential.&lt;/p&gt;
+
+&lt;p&gt;(Actually, your measurements of time to product formation would probably really best be
+described by a branching pathway, with each branch of the pathway having multiple sequential
+events as in the hypoexponential above. But we rarely have enough data to get all this information
+out of our measurements. Instead, if your mixed sample had fairly equal amounts of the two
+kinds of enzyme, or if those missing subunits really made a big difference in rates, I imagine
+your data would look more like a hyperexponential&amp;ndash;the rates of the two populations would dominate
+over the rates of each population&amp;rsquo;s sequential processes. Conversely, if the majority of your
+sample was one population, or their rates weren&amp;rsquo;t that different, your data might look more
+like a hypoexponential.)&lt;/p&gt;
+
+&lt;p&gt;The CDF of a two-term hyperexponential is given by&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-latex&#34;&gt;Cum_Density_Hyper(w) = a*(1-exp(-k1*w))+(1-a)(1-exp(-k2*w)),
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;and the PDF by&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-latex&#34;&gt;Probability_Hyper(w) = a*k1*exp(-k1*w)+(1-a)*k2*exp(-k2*w),
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;where &lt;em&gt;a&lt;/em&gt; is a normalization factor. Estimates of the rate constants for a hyperexponential do not have closed-form solutions,
+but they can be estimated by a maximum likelihood approach as in the code section below.&lt;/p&gt;
+
+&lt;h2 id=&#34;math-part-2-distinguishing-between-types-of-exponentials&#34;&gt;Math, part 2: Distinguishing between types of exponentials&lt;/h2&gt;
+
+&lt;p&gt;There are several approaches to determining whether your data are best described as singly
+exponentially distributed, hypoexponentially distributed, or hyperexponentially distributed.&lt;/p&gt;
+
+&lt;p&gt;One easy way is to calculate the coefficient of variation, which is the standard deviation
+of the data divided by the mean. If the coefficient of variation is close to one, the data
+are most consistent with a single exponential; if the coefficient of variation is significantly
+greater than one, the data are most consistent with a hyperexponential (branching pathway);
+if less than one, a hypoexponential (sequential processes). As described below, it is usually
+best to bootstrap your data and re-compute the coefficient of variation for each bootstrapped
+sample, and then see whether these bootstrapped coefficients of variation mostly fall around 1,
+or mostly above 1, or mostly below 1.&lt;/p&gt;
+
+&lt;p&gt;Another way of determining exponentiality is by comparing the CDF of your data to the CDFs
+of a single exponential distribution, a hyperexponential distribution, and a hypoexponential
+distribution, as in a P-P plot (code and example plots given below).&lt;/p&gt;
+
+&lt;h2 id=&#34;code-generate-data&#34;&gt;Code: Generate data&lt;/h2&gt;
+
+&lt;p&gt;We will generate three synthetic data sets, one drawn from a single exponential distribution,
+one from a hypoexponential, and one from a hyperexponential. The single exponential will
+have a rate constant of &lt;em&gt;k1&lt;/em&gt; = &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;10&lt;/sub&gt; per second (mean wait time of 10 seconds), and the
+two-term exponentials will have rate constants &lt;em&gt;kh1&lt;/em&gt; = &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;20&lt;/sub&gt; per second and &lt;em&gt;kh2&lt;/em&gt; = &lt;sup&gt;1&lt;/sup&gt;&amp;frasl;&lt;sub&gt;5&lt;/sub&gt; per second.
+Each data set will have 100 samples.&lt;/p&gt;
+
+&lt;p&gt;To draw samples for each data set, as in the Histograms tutorial (&lt;a href=&#34;https://stephlj.github.io/tutorials/HistosVsCDFs&#34;&gt;https://stephlj.github.io/tutorials/HistosVsCDFs&lt;/a&gt;)
+we will generate 100 random numbers uniformly sampled from the interval [0,1] and compute
+the inverse CDF of each kind of distribution for each 100 numbers. As in the Histograms tutorial,
+we will also add some noise to each sample we draw:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;k1 = 1/10;
+kh1 = 1/20;
+kh2 = 1/5;
+n_samples = 100;
+InvCDF_single = @(x,k)(?);
+n = rand(1,n_samples);
+data_single = InvCDF_single(n,k1)+randn(1,n_samples)./50;
+InvCDF_hypo = @(x,k1,k2)(?);
+n = rand(1,n_samples);
+data_hypo = InvCDF_hypo(n,kh1,kh2)+randn(1,n_samples)./50;
+InvCDF_hyper = @(x,k1,k2)(?);
+n = rand(1,n_samples);
+data_hyper = InvCDF_hyper(n,kh1,kh2)+randn(1,n_samples)./50;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;test-for-different-kinds-of-exponentiality&#34;&gt;Test for different kinds of exponentiality&lt;/h2&gt;
+
+&lt;p&gt;First let&amp;rsquo;s calculate the coefficient of variation of each data set, as well as a bootstrapped
+estimate of our uncertainty about that coefficient of variation:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;cv_single = std(data_single)/mean(data_single);
+cv_hypo = std(data_hypo)/mean(data_hypo);
+cv_hyper = std(data_hyper)/mean(data_hyper);
+num_bs = 500;
+cv_single_bs = bootstrp(num_bs,@(x)std(x)/mean(x),data_single);
+cv_hypo_bs = bootstrp(num_bs,@(x)std(x)/mean(x),data_hypo);
+cv_hyper_bs = bootstrp(num_bs,@(x)std(x)/mean(x),data_hyper);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(See also &lt;a href=&#34;https://stephlj.github.io/tutorials/Bootstrapping&#34;&gt;https://stephlj.github.io/tutorials/Bootstrapping&lt;/a&gt; for more information on bootstrapping.)&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m not usually a fan of histograms (see &lt;a href=&#34;https://stephlj.github.io/tutorials/HistosVsCDFs&#34;&gt;https://stephlj.github.io/tutorials/HistosVsCDFs&lt;/a&gt;),
+but for a quick-and-dirty, non-quantitative look at the data, they&amp;rsquo;re ok:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;	function PlotHisto(fig_handle,cv_bs,cv_mean,fig_title)
+		[n,xout] = hist(cv_bs);
+		n = n./length(cv_bs);
+		subplot(fig_handle)
+		bar(xout,n)
+		xlabel(&#39;Coefficient of variation&#39;,&#39;Fontsize&#39;,16)
+		ylabel(&#39;Frequency&#39;,&#39;Fontsize&#39;,16&#39;)
+		title(fig_title,&#39;Fontsize&#39;,16&#39;)
+		set(gca,&#39;Fontsize&#39;,16)
+		hold on
+		plot([cv_mean cv_mean], [0 max(n)],&#39;--r&#39;)
+		plot([1 1],[0 max(n)],&#39;--k&#39;)
+		hold off
+	end
+figure
+h1=subplot(1,3,1)
+PlotHisto(h1,cv_single_bs,cv_single,&#39;Single exp&#39;)
+h2=subplot(1,3,2)
+PlotHisto(h2,cv_hypo_bs,cv_hypo,&#39;Hypo exp&#39;)
+h3=subplot(1,3,3)
+PlotHisto(h3,cv_hyper_bs,cv_hyper,&#39;Hyper exp&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Those histograms should look something like this:
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;http://stephlj.github.io/img/Exponentiality_CVhistos.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;Histogram of bootstrapped coefficients of variation.&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+&lt;/p&gt;
+
+&lt;p&gt;As noted above, another way to assess which distribution best describe your data is to use
+a P-P plot, which compares the CDF of your data to the theoretical CDF of the distribution
+you&amp;rsquo;re testing against. Code for a P-P plot in Matlab can be found at ?? or at
+&lt;a href=&#34;https://gist.github.com/mattjj/2356182&#34;&gt;https://gist.github.com/mattjj/2356182&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;How do our three data sets compare to the three distributions?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;	function PlotPP(fig_handle,data,exp_type,fig_title)
+		[Empirical_percentiles,Fit_percentiles] = PPplot(data,exp_type);
+		subplot(fig_handle)
+		plot(Empirical_percentiles,Fit_percentiles,&#39;bx&#39;)
+		hold on
+		plot([0,1],[0,1],&#39;r-&#39;);
+		ylim([0,1]);
+		xlim([0,1]);
+		xlabel(&#39;Empirical Percentiles&#39;,&#39;Fontsize&#39;,16);
+		ylabel(&#39;Fit Percentiles&#39;,&#39;Fontsize&#39;,16);
+		title(fig_title)
+		set(gca,&#39;Fontsize&#39;,16)
+		hold off
+	end
+figure
+h11=subplot(3,3,1)
+PlotPP(h11,data_single,@(x)expcdf(x,mean(data_single)),&#39;Single exp data vs. Single exp theoretical&#39;);
+h12=subplot(3,3,2)
+PlotPP(h12,data_hypo,@(x)expcdf(x,mean(data_hypo)),&#39;Hypo-exp data vs. Single exp theoretical&#39;);
+h13=subplot(3,3,3)
+PlotPP(h13,data_hyper,@(x)expcdf(x,mean(data_hyper)),&#39;Hyper-exp data vs. Single exp theoretical&#39;);
+HypoCDF = @(x,k_ho_1,k_ho_2)(1-(k_ho_2/(k_ho_2-k_ho_1)).*exp(-k_ho_1.*x)+(k_ho_1/(k_ho_2-k_ho_1)).*exp(-k_ho_2.*x));
+Get_kho1 = @(x)(2/mean(x))*(1+sqrt(1+2*((std(x)/mean(x))^2-1)))^-1;
+Get_kho2 = @(x)(2/mean(x))*(1-sqrt(1+2*((std(x)/mean(x))^2-1)))^-1;
+h21=subplot(3,3,4)
+PlotPP(h21,data_single,@(x)HypoCDF(x,Get_kho1(data_single),Get_kho2(data_single)),&#39;Single exp data vs. Hypo exp theoretical&#39;);
+h22=subplot(3,3,5)
+PlotPP(h21,data_hypo,@(x)HypoCDF(x,Get_kho1(data_hypo),Get_kho2(data_hypo)),&#39;Hypo exp data vs. Hypo exp theoretical&#39;);
+h23=subplot(3,3,6)
+PlotPP(h21,data_hyper,@(x)HypoCDF(x,Get_kho1(data_hyper),Get_kho2(data_hyper)),&#39;Hyper exp data vs. Hypo exp theoretical&#39;);
+HyperCDF = @(x,k_he_1,k_he_2)(??);
+Get_khe1 = ??;
+Get_khe2 = ??;
+h31=subplot(3,3,7)
+PlotPP(h21,data_single,@(x)HyperCDF(x,Get_khe1(data_single),Get_khe2(data_single)),&#39;Single exp data vs. Hyper exp theoretical&#39;);
+h32=subplot(3,3,8)
+PlotPP(h21,data_hypo,@(x)HyperCDF(x,Get_khe1(data_hypo),Get_khe2(data_hypo)),&#39;Hypo exp data vs. Hyper exp theoretical&#39;);
+h33=subplot(3,3,9)
+PlotPP(h21,data_hyper,@(x)HyperCDF(x,Get_khe1(data_hyper),Get_khe2(data_hyper)),&#39;Hyper exp data vs. Hyper exp theoretical&#39;);
+&lt;/code&gt;&lt;/pre&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;http://stephlj.github.io/img/Exponentiality_PPplots.png&#34; /&gt;
+    
+    
+    &lt;figcaption&gt;
+        &lt;h4&gt;P-P plots comparing synthetic data to different types of exponential distributions.&lt;/h4&gt;
+        
+    &lt;/figcaption&gt;
+    
+&lt;/figure&gt;
+
+
+&lt;p&gt;Note that these P-P plots give us more information than the coefficients of variation: if the
+data are well-described by whatever distribution we&amp;rsquo;re testing against, as on the diagonal from
+top left to bottom right, then the results of the P-P plot should fall along the y=x line. If they don&amp;rsquo;t,
+that tells you something about how your data differ from the theoretical distribution you&amp;rsquo;re comparing to.
+For example, if the empirical data are smaller than the theoretical data (such that the P-P results
+fall above the y=x line) at higher percentiles, your data have a heavier tail than the distribution
+you&amp;rsquo;re comparing too.&lt;/p&gt;
+
+&lt;h2 id=&#34;testing-for-exponentiality-at-the-population-level&#34;&gt;Testing for exponentiality at the population level&lt;/h2&gt;
+
+&lt;p&gt;So far we have focused on data collected from measurements of wait times&amp;ndash;how long it takes
+for each molecule (or equivalent) in a sample to undergo some measurable event. This kind
+of measurement is more often encountered in single molecule experiments (where wait times
+are often called dwell times or state lifetimes). But what about measurements made at the
+population level?&lt;/p&gt;
+
+&lt;p&gt;Going back to the example of radioactivity used at the beginning of this tutorial:
+What if instead of measuring the time to decay for each atom, we measured the fraction
+of non-decayed atoms at every time point? This gives us the classic exponential decay
+function we associate with radioactive decay.&lt;/p&gt;
+
+&lt;p&gt;&amp;hellip; fluor data&lt;/p&gt;
+
+&lt;h2 id=&#34;concluding-remarks-other-distributions-encountered-in-biology&#34;&gt;Concluding remarks: other distributions encountered in biology&lt;/h2&gt;
+
+&lt;p&gt;Various kinds of exponential distributions are common in biology and especially in single-
+molecule measurements. If you&amp;rsquo;re measuring something to do with rates, or time, you&amp;rsquo;ll
+likely be measuring something that is exponentially distributed.&lt;/p&gt;
+
+&lt;p&gt;We note briefly some contexts in which other kinds of distributions
+may arise. In all of these cases, similar approaches (e.g. P-P plots) to those described
+above for exponentials can be used to test whether your data are consistent with some
+theoretical distribution.&lt;/p&gt;
+
+&lt;h1 id=&#34;gaussian&#34;&gt;Gaussian&lt;/h1&gt;
+
+&lt;p&gt;Gaussian distributions are another very common distribution in biology and in single-molecule
+biophysics&amp;ndash;for example, the intensity of a stable fluorescent molecule over time will be
+Gaussian-distributed around some mean value. We usually assume noise is Gaussian as well.&lt;/p&gt;
+
+&lt;h1 id=&#34;mean-first-passage-time&#34;&gt;Mean first passage time?&lt;/h1&gt;
+
+&lt;h1 id=&#34;poisson-binomial&#34;&gt;Poisson/Binomial&lt;/h1&gt;
+
+&lt;p&gt;A classic example of a binomial process in biology is dilution of a cytoplasmic factor over the
+course of several generations of cell division. The distribution of how many of these factors
+each daughter cell will have over time will be binomially distributed. Alternatively,
+consider how many mRNAs are produced per something. Notice that here we&amp;rsquo;re not interested
+in measuring the &lt;em&gt;time to&lt;/em&gt; something, even though it sounds like there&amp;rsquo;s a time component here.
+We&amp;rsquo;re really measuring &lt;em&gt;how many&lt;/em&gt; of something.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bootstrapped error calculations</title>
+      <link>http://stephlj.github.io/tutorials/Bootstrapping/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://stephlj.github.io/tutorials/Bootstrapping/</guid>
+      <description>
+
+&lt;p&gt;&lt;a href=&#34;https://stephlj.github.io&#34;&gt;&amp;lt; &lt;em&gt;Back to homepage&lt;/em&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Bootstrapping is a well-established method for estimating errors,
+particularly when trying to estimate sampling errors (rather than, say, systematic or
+technical errors). The idea behind the bootstrap is to ask how much the estimate of whatever
+you&amp;rsquo;re interested (e.g. the mean of your data) would have changed if you&amp;rsquo;d collected a slightly
+different set of data, but still drawn from the same underlying &amp;ldquo;true&amp;rdquo; reality. Say you have 100
+samples; how much does your estimate of the mean depend on a particular 10 of them? What if
+you collected samples over several days and one day, for whatever reason, all of your sample
+values were a little bit larger than the rest? How much would it change your estimate of
+the mean if you&amp;rsquo;d not collected data that day? Essentially the bootstrap asks the question,
+what estimates of my sample mean would I have obtain if I re-ran this experiment 100 or 1000
+more times?&lt;/p&gt;
+
+&lt;p&gt;The classic reference on bootstrapping and why it works is ??.&lt;/p&gt;
+
+&lt;h2 id=&#34;assumptions&#34;&gt;Assumptions&lt;/h2&gt;
+
+&lt;p&gt;The most essential assumption of the bootstrapping routine is the size of your data. You
+really can&amp;rsquo;t bootstrap a data set with 3 numbers in it. For single-molecule data, I&amp;rsquo;ve found
+50-100 to be fine, but the more the better.&lt;/p&gt;
+
+&lt;p&gt;As a corollary to the data set size, if the principle of the bootstrapping approach is, what
+would happen if I re-ran this experiment 100 more times, your initial data set needs to span
+a representative range of possible measurement values. Let&amp;rsquo;s say the underlying reality you&amp;rsquo;re
+trying to measure is Gaussian distributed around a mean of 20. Let&amp;rsquo;s say you make 10
+measurements of this underlying reality, and all of your measurements just happen to fall
+between values of 0.1 and 7. (Small sample sizes&amp;ndash;it can happen!) Hopefully, when you bootstrap
+your data, your errors are large, so you know you shouldn&amp;rsquo;t be confident of the mean value
+you obtained with only 10 samples. But in this case, the bootstrapping routine is not
+going to tell you that if you ran this experiment 100 more times, eventually you would figure out
+the mean should be closer to 20.&lt;/p&gt;
+
+&lt;p&gt;How do you if you have &amp;ldquo;enough&amp;rdquo; data? Well, when in doubt, take more data and see if it
+changes the estimate of the mean. Alternatively, you can generate multiple sub-sets of your
+data, of varying size, to ask how confident your estimate of the mean would have been if you&amp;rsquo;d
+collected, say, half the data. That is, sub-sample your whole data set with
+replacement, generating, say, 100 new data sets that each have half the number of measurements
+of your full data set. (&amp;ldquo;With replacement&amp;rdquo; means each sub-sample can have duplicates from
+your original data set.) Calculate the mean value (or whatever your parameter of interest is)
+for each 100 new half-sized data sets. How much does that mean value vary? What if your sub-sampled
+data sets had a quarter of the data?&lt;/p&gt;
+
+&lt;h2 id=&#34;bootstrapping-time-trajectories-or-comparable&#34;&gt;Bootstrapping time trajectories (or comparable)&lt;/h2&gt;
+
+&lt;p&gt;Single-molecule data often take the form of time trajectories, in which something (e.g.,
+FRET value) is measured over time. Often these time trajectories have multiple states
+or events, and you may want to quantify something for each state. For example, say each
+time trajectory explores three different states, and you quantify the mean dwell time or
+mean lifetime of each state. For 100 time trajectories, each with 3 states, this would give
+you 3 data sets, each with 100 numbers in them.&lt;/p&gt;
+
+&lt;p&gt;When you bootstrap these data to estimate the error on each mean dwell time, you have to
+decide whether to bootstrap over &lt;em&gt;dwell times&lt;/em&gt;, or over &lt;em&gt;trajectories&lt;/em&gt;. That is, do you
+treat each of the 3 sets of dwell times independently, and bootstrap each separately?
+Or do you take into account that these 3 sets of numbers may not be independent from each
+other? What if there are correlations between dwells&amp;ndash;e.g., if one trajectory has a really
+long first dwell, perhaps the second and third dwells are especially long as well. (Maybe
+that one molecule was just really slow, at everything!)&lt;/p&gt;
+
+&lt;p&gt;My choice is usually to bootstrap over trajectories, going with the principle of, what
+if I&amp;rsquo;d happened not to collect this particular trajectory as part of my data set. Or if I&amp;rsquo;d
+collected 5 of them instead of 1.&lt;/p&gt;
+
+&lt;p&gt;Bootstrapping with respect to trajectories requires a slight modification to a standard
+bootstrapping routine, as described below.&lt;/p&gt;
+
+&lt;h2 id=&#34;code&#34;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;If whatever software or language you&amp;rsquo;re doing data analysis in has a built-in bootstrapping
+function, use that. Matlab has one (called bootstrp).&lt;/p&gt;
+
+&lt;p&gt;The outline of a very simple bootstrapping routine would be:&lt;/p&gt;
+
+&lt;p&gt;(1) Load your data, or generate some random data for testing purposes:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;data = randn(1,87);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(2) Assuming you want to generate 1000 bootstrapped data sets (these days, with
+computers as fast as they are, 1000 or even 10,000 is not unreasonable.
+You can certainly have too few bootstrapped samples, but anything above a
+couple hundred should be fine. Above a reasonable threshold, increasing
+the number of bootstrapped data sets shouldn&amp;rsquo;t affect your estimate of
+the error!):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;num_bs = 1000;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(3) Call Matlab&amp;rsquo;s bootstrapping function:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;means_bs = bootstrp(num_bs,@(x)mean(x),data);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Alternatively, to bootstrap with respect to trajectories, I
+first generate a resampled-with-replacement set of trajectory
+indicies&amp;ndash;that is, if I have 87 trajectories, I assign them each a
+number&amp;ndash;usually the order they load in&amp;ndash;and then resample with
+replacement the indicies. Note below that instead of bootstrapping data directly,
+I&amp;rsquo;m bootstrapping indices:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;bootstat = bootstrp(num_bs,@(x)x,1:length(data));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here, each row of bootstat will be a set of indices with which to resample
+data with replacement (bootstat will have size num_bs by length(data)).&lt;/p&gt;
+
+&lt;p&gt;Then I generate new data sets based on each row of bootstat&amp;ndash;for example,
+load all the trajectories corresponding to the indicies in the first row
+of bootstat, then extract the durations of the first dwell for each of
+these trajectories and take the mean of those values. Then extract the
+durations of the second dwell of these trajectories and calculate the mean. Etc.
+Then move on to the next row of bootstat. Re-load the appropriate trajectories, extract
+all their first dwell durations &amp;hellip;&lt;/p&gt;
+
+&lt;p&gt;(4) I report the standard deviation of the bootstrapped means as my estimate
+of the standard error on the mean:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-matlab&#34;&gt;err = std(means_bs);
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
   </channel>
 </rss>
