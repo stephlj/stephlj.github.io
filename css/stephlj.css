@@ -1,18 +1,10 @@
 /* Custom css for stephlj.github.io */
 
-a,
-.article-metadata a {
+a, .article-metadata a {
     color: rgb(0, 149, 235);
 }
 
-.navbar {
-    background-color: rgb(230,242,255);
-}
-
-body {
-    font_size: 100%;
-}
-
-p {
-    font-size: 0.75em;
-}
+.navbar { background-color: rgb(230,242,255); }
+body { font_size: 100%; }
+p { font-size: 95%; }
+pre code { font-size: 100%; }
