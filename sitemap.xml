@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
     
     
     <url>
-      <loc>http://stephlj.github.io/tutorials/HistosVsCDFs/</loc>
+      <loc>http://stephlj.github.io/tutorials/histosvscdfs/</loc>
       <lastmod>2017-10-08T00:00:00+00:00</lastmod>
     </url>
     
@@ -12,7 +11,7 @@
     
     
     <url>
-      <loc>http://stephlj.github.io/tutorials/Exponentiality/</loc>
+      <loc>http://stephlj.github.io/tutorials/exponentiality/</loc>
       <lastmod>2017-10-08T00:00:00+00:00</lastmod>
     </url>
     
@@ -20,11 +19,8 @@
     
     
     <url>
-      <loc>http://stephlj.github.io/tutorials/Bootstrapping/</loc>
+      <loc>http://stephlj.github.io/tutorials/bootstrapping/</loc>
     </url>
-    
-  
-    
     
   
     
@@ -32,7 +28,6 @@
     <url>
       <loc>http://stephlj.github.io/</loc>
       <lastmod>2017-10-08T00:00:00+00:00</lastmod>
-      <priority>0</priority>
     </url>
     
   
@@ -41,7 +36,20 @@
     <url>
       <loc>http://stephlj.github.io/tutorials/</loc>
       <lastmod>2017-10-08T00:00:00+00:00</lastmod>
-      <priority>0</priority>
+    </url>
+    
+  
+    
+    
+    <url>
+      <loc>http://stephlj.github.io/categories/</loc>
+    </url>
+    
+  
+    
+    
+    <url>
+      <loc>http://stephlj.github.io/tags/</loc>
     </url>
     
   

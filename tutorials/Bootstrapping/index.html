@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="theme" content="hugo-academic">
-  <meta name="generator" content="Hugo 0.18.1" />
+  <meta name="generator" content="Hugo 0.79.1" />
   <meta name="author" content="Stephanie L. Johnson, Ph.D.">
-  <meta name="description" content="Engineer, Eikon Tx">
+  <meta name="description" content="Software Engineer">
 
   
   
@@ -34,7 +34,7 @@
   <link rel="icon" type="image/png" href="/img/icon.png">
   <link rel="apple-touch-icon" type="image/png" href="/img/apple-touch-icon.png">
 
-  <link rel="canonical" href="http://stephlj.github.io/tutorials/Bootstrapping/">
+  <link rel="canonical" href="http://stephlj.github.io/tutorials/bootstrapping/">
 
   
 
@@ -159,33 +159,25 @@
 </div>
 
     <div class="article-style" itemprop="articleBody">
-      
-
-<p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
-
+      <p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
 <p>Bootstrapping is a well-established method for estimating statistical errors (rather than, say, systematic or
 technical errors). The idea behind the bootstrap is to ask how much the estimate of whatever
 you&rsquo;re interested (e.g. the mean of your data) would have changed if you&rsquo;d collected a slightly
 different set of data, but still drawn from the same underlying population distribution.
 If your estimate is being substantially influenced by an outlier or some other
 peculiarity not representative of the data set, the bootstrap can let you know.</p>
-
 <p>Say you have 100 samples; how much does your estimate of the mean depend on a particular 10 of them? What if
 you collected samples over several days, and one day, for whatever reason, all of your sample
 values from that day were a little bit larger than the rest? How much would it change your estimate of
 the mean if you&rsquo;d not collected data that day? A large part of statistics is about answering the question,
 what estimates of my sample mean would I have obtained if I re-ran this experiment 100 or 1000
 more times? The bootstrap attempts to answer this question by direct simulation.</p>
-
 <p>The classic reference on bootstrapping and why it works is Efron and Tibshirani (1993),
 <strong>An introduction to the bootstrap</strong>.</p>
-
 <h2 id="considerations">Considerations</h2>
-
 <p>The most essential prerequisite for the bootstrapping routine is the size of your data. You
 really can&rsquo;t bootstrap a data set with 3 numbers in it. For the kinds of single molecule data
 I&rsquo;ve encountered, I&rsquo;ve found 50-100 samples to be fine, but the more the better.</p>
-
 <p>As a corollary to the data set size, your sample data set also needs to span
 a representative range of possible measurement values. Let&rsquo;s say the underlying population you&rsquo;re
 measuring is Gaussian distributed around a mean of 20. Let&rsquo;s say you make 10
@@ -196,7 +188,6 @@ represent the population variability, all the bootstrapped estimates might be
 near 15, and you might erroneously conclude that you have low statistical
 uncertainty. If we had drawn a larger dataset, this kind of fluke would be
 exponentially unlikely to happen.</p>
-
 <p>How do you if you have &ldquo;enough&rdquo; data? Well, when in doubt, take more data and see if it
 changes the estimate of the mean. Alternatively, you can generate multiple sub-sets of your
 data, of varying size, to ask how confident your estimate of the mean would have been if you&rsquo;d
@@ -206,16 +197,13 @@ of your full data set. (&ldquo;With replacement&rdquo; means each sub-sample can
 your original data set.) Calculate the mean value (or whatever your parameter of interest is)
 for each 100 new half-sized data sets. How much does that mean value vary? What if your sub-sampled
 data sets had a quarter of the data?</p>
-
 <h2 id="bootstrapping-time-trajectories-or-comparable">Bootstrapping time trajectories (or comparable)</h2>
-
 <p>Single-molecule data often take the form of time trajectories, in which something (e.g.,
 FRET value) is measured over time. Often these time trajectories have multiple states
 or events, and you may want to quantify something for each state. For example, say each
 time trajectory explores three different states, and you quantify the mean dwell time or
 mean lifetime of each state. For 100 time trajectories, each with 3 states, this would give
 you 3 data sets, each with 100 numbers in them.</p>
-
 <p>When you bootstrap these data to estimate the error on each mean dwell time, you have to
 decide whether to bootstrap over <em>dwell times</em>, or over <em>trajectories</em>. That is, do you
 treat each of the 3 sets of dwell times independently, and bootstrap each separately?
@@ -223,55 +211,36 @@ Or do you take into account that these 3 sets of numbers may not be independent 
 other? What if there are correlations between dwells&ndash;e.g., if one trajectory has a really
 long first dwell, perhaps the second and third dwells are especially long as well. (Maybe
 that one molecule was just really slow, at everything!)</p>
-
 <p>My choice is usually to bootstrap over trajectories, going with the principle of, what
 if I&rsquo;d happened not to collect this particular trajectory as part of my data set. Or if I&rsquo;d
 collected 5 of them instead of 1.</p>
-
 <p>Bootstrapping with respect to trajectories requires a slight modification to a standard
 bootstrapping routine, as described below.</p>
-
 <h2 id="code">Code</h2>
-
 <p>If whatever software or language you&rsquo;re doing data analysis in has a built-in bootstrapping
 function, use that. Matlab has one (called bootstrp).</p>
-
 <p>The outline of a very simple bootstrapping routine would be:</p>
-
 <p>(1) Load your data, or generate some random data for testing purposes:</p>
-
-<pre><code class="language-matlab">data = randn(1,87);
-</code></pre>
-
-<p>(2) Generate 1000 bootstrapped data sets (these days, with
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">data = randn(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">87</span>);
+</code></pre></div><p>(2) Generate 1000 bootstrapped data sets (these days, with
 computers as fast as they are, 1000 or even 10,000 is not unreasonable.
 You can certainly have too few bootstrapped samples, but anything above a
 couple hundred should be fine. Above a reasonable threshold, increasing
 the number of bootstrapped data sets shouldn&rsquo;t affect your estimate of
 the error!):</p>
-
-<pre><code class="language-matlab">num_bs = 1000;
-</code></pre>
-
-<p>(3) Call Matlab&rsquo;s bootstrapping function. Let&rsquo;s say I&rsquo;m trying to estimate the error
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">num_bs = <span style="color:#ae81ff">1000</span>;
+</code></pre></div><p>(3) Call Matlab&rsquo;s bootstrapping function. Let&rsquo;s say I&rsquo;m trying to estimate the error
 on the sample mean:</p>
-
-<pre><code class="language-matlab">means_bs = bootstrp(num_bs, @(x) mean(x), data);
-</code></pre>
-
-<p>Alternatively, to bootstrap with respect to trajectories, I
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">means_bs = bootstrp(num_bs, @(x) mean(x), data);
+</code></pre></div><p>Alternatively, to bootstrap with respect to trajectories, I
 first generate a resampled-with-replacement set of trajectory
 indicies&ndash;that is, if I have 87 trajectories, I assign them each a
 number (usually the order they load in) and then resample with
 replacement the indicies. Note below that instead of bootstrapping data directly,
 I&rsquo;m bootstrapping indices:</p>
-
-<pre><code class="language-matlab">bootstat = bootstrp(num_bs, @(x) x, 1:length(data));
-</code></pre>
-
-<p>Here, each row of <code>bootstat</code> will be a set of indices with which to resample
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">bootstat = bootstrp(num_bs, @(x) x, <span style="color:#ae81ff">1</span>:length(data));
+</code></pre></div><p>Here, each row of <code>bootstat</code> will be a set of indices with which to resample
 data with replacement (bootstat will have size <code>num_bs</code> by <code>length(data)</code>).</p>
-
 <p>Then I generate new data sets based on each row of bootstat&ndash;for example,
 load all the trajectories corresponding to the indicies in the first row
 of bootstat, then extract the durations of the first dwell for each of
@@ -280,14 +249,10 @@ durations of the second dwell of these trajectories and calculate the mean. Etc.
 Then move on to the next row of bootstat. Re-load the appropriate trajectories, extract
 all their first dwell durations &hellip; Eventually I would have num_bs new mean values for each
 dwell time.</p>
-
 <p>(4) I report the standard deviation of the bootstrapped means as my estimate
 of the standard error on the mean:</p>
-
-<pre><code class="language-matlab">err = std(means_bs);
-</code></pre>
-
-<p><em>Thanks to <a href="http://www.themattjohnson.com">Matt Johnson</a> for teaching me this material, and for
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">err = std(means_bs);
+</code></pre></div><p><em>Thanks to <a href="http://www.themattjohnson.com">Matt Johnson</a> for teaching me this material, and for
 editing this tutorial for accuracy and clarity!</em></p>
 
     </div>
@@ -301,7 +266,7 @@ editing this tutorial for accuracy and clarity!</em></p>
     
 
     
-    <li class="next"><a href="http://stephlj.github.io/tutorials/Exponentiality/">Are my data exponentially distributed? <span
+    <li class="next"><a href="http://stephlj.github.io/tutorials/exponentiality/">Are my data exponentially distributed? <span
       aria-hidden="true">&rarr;</span></a></li>
     
   </ul>
@@ -318,7 +283,7 @@ editing this tutorial for accuracy and clarity!</em></p>
   <div class="container">
     <p class="powered-by">
 
-      &copy; 2019 Stephanie Johnson &middot; 
+      © 2019, 2020 Stephanie Johnson &middot; 
 
       Powered by the <a href="https://github.com/gcushen/hugo-academic" target="_blank">Academic
       theme</a> for <a href="http://gohugo.io" target="_blank">Hugo</a>.
