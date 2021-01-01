@@ -1,68 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Homes on Stephanie L. Johnson</title>
-    <link>http://stephlj.github.io/home/</link>
+    <link>http://stephlj.github.io/home/index.xml</link>
     <description>Recent content in Homes on Stephanie L. Johnson</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>&amp;copy; 2019, 2020 Stephanie Johnson</copyright><atom:link href="http://stephlj.github.io/home/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title></title>
-      <link>http://stephlj.github.io/home/about/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://stephlj.github.io/home/about/</guid>
-      <description>I am a scientist with a broad, interdisciplinary background encompassing experimental biophysics, quantitative biochemistry, microscopy, and computation. I am currently developing software tools and a data science program for live cell, single molecule microscopy-based drug discovery at Eikon Therapeutics.
-I received my Ph.D. from the California Institute of Technology in 2012 with Rob Phillips, where I used a brightfield microscopy assay, along with theoretical modeling, to make precise measurements of sequence-dependent DNA flexibility and its role in bacterial transcriptional regulation.</description>
-    </item>
-    
-    <item>
-      <title>Publications</title>
-      <link>http://stephlj.github.io/home/publications/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://stephlj.github.io/home/publications/</guid>
-      <description>Johnson S.L., Narlikar G.J. (2020) ATP hydrolysis coordinates the activities of two motors in a dimeric chromatin remodeling enzyme. bioRxiv.
-Armache J.P.*, Gamarra N.*, Johnson S.L., Leonard J.D., Wu S., Narlikar G.J., and Cheng Y. (2019) Electron cryo-microscopy structure of remodeler-nucleosome intermediates suggest allosteric control through the nucleosome. eLIFE 8: e46057. (*equal contribution)
-Gebala M., Johnson S.L., Narlikar G.J., and Herschlag D. (2019) Ion counting demonstrates a high electrostatic potential of the nucleosome.</description>
-    </item>
-    
-    <item>
-      <title>CV</title>
-      <link>http://stephlj.github.io/home/cv/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://stephlj.github.io/home/cv/</guid>
-      <description>Long-form CV (pdf) Professional Experience 2020 - present Eikon Therapeutics Software Engineer
-2019 Adecco for Google Research Scientist Consultant Worked with the Google Accelerated Science team to produce breakthroughs in the natural sciences by applying Google technologies.
-Education/training 2013 - 2019
-University of California, San Francisco
-Postdoctoral fellow in Biochemistry and Biophysics
-Mechanistic dissection of ATP-dependent chromatin remodeling motors using a combined ensemble biochemistry and single-molecule biophysics approach.
-Advisor: Geeta Narlikar</description>
-    </item>
-    
-    <item>
-      <title>Code</title>
-      <link>http://stephlj.github.io/home/code/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://stephlj.github.io/home/code/</guid>
-      <description>Traces, single-molecule FRET analysis code
-Slopey, for the quantification of single-molecule FRET trajectories containing fast, non-instantaneous transitions (see these slides for an introduction to Slopey and its application to the analysis of a chromatin remodeler&amp;rsquo;s reaction mechanism)</description>
-    </item>
-    
-    <item>
-      <title>Tutorials</title>
-      <link>http://stephlj.github.io/home/tutorials/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://stephlj.github.io/home/tutorials/</guid>
-      <description>Histograms vs CDFs, on the uses of histograms, KDEs, and CDFs for cluster analysis
-Are my data exponentially distributed?, on how to determine underlying distributions that your data could be drawn from
-Bootstrapped error calculations, on estimating errors based on a bootstrapping method</description>
-    </item>
+    <copyright>&amp;copy; 2019, 2020 Stephanie Johnson</copyright>
+    <atom:link href="/home/index.xml" rel="self" type="application/rss+xml" />
     
   </channel>
 </rss>

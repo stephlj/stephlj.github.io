@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="theme" content="hugo-academic">
-  <meta name="generator" content="Hugo 0.79.1" />
+  <meta name="generator" content="Hugo 0.18.1" />
   <meta name="author" content="Stephanie L. Johnson, Ph.D.">
   <meta name="description" content="Software Engineer">
 
@@ -34,7 +34,7 @@
   <link rel="icon" type="image/png" href="/img/icon.png">
   <link rel="apple-touch-icon" type="image/png" href="/img/apple-touch-icon.png">
 
-  <link rel="canonical" href="http://stephlj.github.io/tutorials/exponentiality/">
+  <link rel="canonical" href="http://stephlj.github.io/tutorials/Exponentiality/">
 
   
 
@@ -159,12 +159,16 @@
 </div>
 
     <div class="article-style" itemprop="articleBody">
-      <p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
+      
+
+<p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
+
 <p>To first order approximation, the results of single molecule measurements of time-dependent processes
 in a biological system are usually exponentially distributed.
 This is because we are often measuring the time to an event that has some
 fixed, independent probability of occurring in any instant (where an instant
 means a short interval of time).</p>
+
 <p>Think, for example, of radioactive decay: in each instant, an atom in the
 sample has some fixed probability of decaying (given that it hasn&rsquo;t already
 decayed).
@@ -175,12 +179,14 @@ The average time to decay is then $\tfrac{1}{k}$, and the wait times
 are <a href="https://en.wikipedia.org/wiki/Exponential_distribution">exponentially
 distributed</a> with
 rate constant $k$.</p>
+
 <p>Keep in mind that this is different from asking <em>how much</em> of the population
 has decayed at a given point in time:
 here we are interested in the <em>distribution of individual times to decay</em>, not
 the amount of un-decayed sample as a function of time.
 The latter is analogous to ensemble fluorescence measurements (<em>e.g.</em> obtained
 by measuring signal from a fluorescent dye in a fluorimeter over time).</p>
+
 <p>Very often in biology the process we are observing consists of multiple
 underlying microscopic events which we cannot observe directly.
 Each of these events could be governed by an independent exponential process.
@@ -197,6 +203,7 @@ molecule in the sample, we would find the distribution of times from substrate
 to product <em>not</em> to be exponentially distributed.
 We would instead need some kind of combination of exponentials to describe the
 overall process.</p>
+
 <p>Most often our experiments only have the resolution to differentiate between
 one or two exponential processes (or perhaps most strictly, one
 or more).
@@ -204,6 +211,7 @@ That is, it&rsquo;s easiest to determine whether the data are not well described
 single exponential; but whether they are best described by some combination of
 two exponentials, or three, or more, is usually not possible, in the absence of
 other information about the system.</p>
+
 <p>Therefore this tutorial will focus on distinguishing between a single
 exponential distribution, and two kinds of &ldquo;double&rdquo; exponentials.
 &ldquo;Double exponential&rdquo; or &ldquo;bi-exponential&rdquo; is an under-specified, non-technical
@@ -217,15 +225,19 @@ which models a sequential process like the enzyme reaction described above.
 Although the hyperexponential is frequently used, in many cases the
 hypoexponential is probably a more appropriate model for what we think is
 happening in the system.</p>
+
 <p>The code in this tutorial can be found in <a href="https://gist.github.com/stephlj/b65ee5e91df2606bf2797d04271c08d5">this
 gist</a>.</p>
+
 <h2 id="math-part-1-ways-to-combine-exponential-distributions">Math, part 1: Ways to combine exponential distributions</h2>
+
 <p>A <a href="https://en.wikipedia.org/wiki/Hypoexponential_distribution#Two_parameter_case"><em>hypoexponential</em></a>
 describes the total duration of a sequential process: first one thing has to
 occur, and then a second thing has to occur.
 If each thing has an independent exponentially distributed duration, then
 the total duration is the sum of two independent exponential random variables.
 This is the more common type of process I&rsquo;ve encountered.</p>
+
 <p>The CDF (see also <a href="https://stephlj.github.io/tutorials/HistosVsCDFs">Histograms vs
 CDFs</a>) of a two-term
 hypoexponential has the form
@@ -240,6 +252,7 @@ distribution is
 $$
 \textrm{PDFhypo}(w) = \frac{k_1 k_2}{k_1-k_2} \left(e^{-k_2 w}-e^{-k_1 w} \right).
 $$</p>
+
 <p>For a hypoexponential, the two rate constants that best describe the data can be estimated
 from data by
 $$
@@ -249,6 +262,7 @@ $$
 k_2 = \frac{2}{\mu}\left(1-\sqrt{1+2\left(\frac{\nu^2}{\mu^2}-1\right)}\right)^{-1}
 $$
 where $\mu$ is the empirical mean of the data and $\nu$ is the standard deviation.</p>
+
 <p>In contrast, the
 <a href="https://en.wikipedia.org/wiki/Hyperexponential_distribution"><em>hyperexponential</em></a>
 describes a process with a branching pathway: <em>either</em> one thing must occur,
@@ -263,6 +277,7 @@ Perhaps these lost subunits change the enzyme&rsquo;s rate; then your sample of
 enzyme would consist of a faster population and a slower population, and your
 measurement of the wait time to product formation would be best described by a
 hyperexponential.</p>
+
 <p>(Actually, your measurements of time to product formation would probably really best be
 described by a branching pathway, with each branch having multiple sequential
 events as in the hypoexponential above. But we rarely have enough data to get all this information
@@ -272,6 +287,7 @@ your data would look more like a hyperexponential&ndash;the rates of the two pop
 over the rates of each population&rsquo;s sequential processes. Conversely, if the majority of your
 sample was one population, or their rates weren&rsquo;t that different, your data might look more
 like a hypoexponential.)</p>
+
 <p>The CDF of a two-term hyperexponential is given by
 $$
 \textrm{CDFhyper}(w) = a\left(1-e^{-k_1 w}\right)+(1-a)\left(1-e^{-k_2 w}\right),
@@ -282,9 +298,12 @@ $$
 $$
 where $a$ is a weighting factor that might correspond to the fraction of the first subpopulation present in the sample. Estimates of the rate constants for a hyperexponential do not have closed-form solutions,
 but they can be estimated by a maximum likelihood approach as in <a href="https://gist.github.com/stephlj/b65ee5e91df2606bf2797d04271c08d5">this gist</a>.</p>
+
 <h2 id="math-part-2-distinguishing-between-combinations-of-exponentials">Math, part 2: Distinguishing between combinations of exponentials</h2>
+
 <p>There are several approaches to determining whether your data are best described as singly
 exponentially distributed, hypoexponentially distributed, or hyperexponentially distributed.</p>
+
 <p>One easy way is to calculate the coefficient of variation, which is the standard deviation
 of the data divided by the mean. If the coefficient of variation is close to one, the data
 are consistent with a single exponential; if the coefficient of variation is significantly
@@ -293,77 +312,110 @@ if less than one, a hypoexponential (sequential processes). As described below, 
 best to bootstrap your data and re-compute the coefficient of variation for each bootstrapped
 sample, and then see whether these bootstrapped coefficients of variation mostly fall around 1,
 or mostly above 1, or mostly below 1.</p>
+
 <p>Another way of determining exponentiality is by comparing the CDF of your data to the CDFs
 of a single exponential distribution, a hyperexponential distribution, and a hypoexponential
 distribution, as in a P-P plot (code and example plots given below).</p>
+
 <h2 id="code">Code</h2>
+
 <h3 id="generate-data">Generate data</h3>
+
 <p>We will generate three synthetic data sets, one drawn from a single exponential distribution,
 one from a hypoexponential, and one from a hyperexponential. The single exponential will
-have a rate constant of $k_1$ = 1/5 per second (mean wait time of 5 seconds), and the
-two-term exponentials will have rate constants $\mathit{kh}_1$ = 1/5 per second and $\mathit{kh}_2$ = 1/50 per second.
+have a rate constant of $k_1$ = <sup>1</sup>&frasl;<sub>5</sub> per second (mean wait time of 5 seconds), and the
+two-term exponentials will have rate constants $\mathit{kh}_1$ = <sup>1</sup>&frasl;<sub>5</sub> per second and $\mathit{kh}_2$ = <sup>1</sup>&frasl;<sub>50</sub> per second.
 The hyperexponential will have a weighting factor of 0.3 (one population is 30% of the total).
 Each data set will have 100 samples:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">k1 = <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">5</span>;
-kh = [<span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">5</span>];
-a = <span style="color:#ae81ff">0.3</span>;
-n_samples = <span style="color:#ae81ff">100</span>;
-data_single = exprnd(<span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>k1, <span style="color:#ae81ff">1</span>, n_samples);  <span style="color:#75715e">% Requires the statistics toolbox</span>
-data_hypo   = exprnd(<span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>kh(<span style="color:#ae81ff">1</span>), <span style="color:#ae81ff">1</span>, n_samples) <span style="color:#f92672">+</span> exprnd(<span style="color:#ae81ff">1</span><span style="color:#f92672">/</span>kh(<span style="color:#ae81ff">2</span>), <span style="color:#ae81ff">1</span>, n_samples);
-data_hyper  = exprnd(<span style="color:#ae81ff">1.</span><span style="color:#f92672">/</span>kh(double(rand(<span style="color:#ae81ff">1</span>, n_samples) <span style="color:#f92672">&gt;</span> a) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>));
-</code></pre></div><h3 id="test-for-different-kinds-of-exponentiality">Test for different kinds of exponentiality</h3>
+
+<pre><code class="language-matlab">k1 = 1/5;
+kh = [1/50, 1/5];
+a = 0.3;
+n_samples = 100;
+data_single = exprnd(1/k1, 1, n_samples);  % Requires the statistics toolbox
+data_hypo   = exprnd(1/kh(1), 1, n_samples) + exprnd(1/kh(2), 1, n_samples);
+data_hyper  = exprnd(1./kh(double(rand(1, n_samples) &gt; a) + 1));
+</code></pre>
+
+<h3 id="test-for-different-kinds-of-exponentiality">Test for different kinds of exponentiality</h3>
+
 <p>First let&rsquo;s calculate the coefficient of variation of each data set, as well as a bootstrapped
 estimate of our uncertainty about that coefficient of variation:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">cv_single = std(data_single) <span style="color:#f92672">/</span> mean(data_single);
-cv_hypo   = std(data_hypo)   <span style="color:#f92672">/</span> mean(data_hypo);
-cv_hyper  = std(data_hyper)  <span style="color:#f92672">/</span> mean(data_hyper);
-num_bs = <span style="color:#ae81ff">500</span>;
-cv_single_bs = bootstrp(num_bs, @(x) std(x) <span style="color:#f92672">/</span> mean(x), data_single);
-cv_hypo_bs   = bootstrp(num_bs, @(x) std(x) <span style="color:#f92672">/</span> mean(x), data_hypo);
-cv_hyper_bs  = bootstrp(num_bs, @(x) std(x) <span style="color:#f92672">/</span> mean(x), data_hyper);
-</code></pre></div><p>(See also <a href="https://stephlj.github.io/tutorials/Bootstrapping">https://stephlj.github.io/tutorials/Bootstrapping</a> for more information on bootstrapping.)</p>
-<p>I&rsquo;m not usually a fan of histograms (see <a href="https://stephlj.github.io/tutorials/HistosVsCDFs),">https://stephlj.github.io/tutorials/HistosVsCDFs),</a>
+
+<pre><code class="language-matlab">cv_single = std(data_single) / mean(data_single);
+cv_hypo   = std(data_hypo)   / mean(data_hypo);
+cv_hyper  = std(data_hyper)  / mean(data_hyper);
+num_bs = 500;
+cv_single_bs = bootstrp(num_bs, @(x) std(x) / mean(x), data_single);
+cv_hypo_bs   = bootstrp(num_bs, @(x) std(x) / mean(x), data_hypo);
+cv_hyper_bs  = bootstrp(num_bs, @(x) std(x) / mean(x), data_hyper);
+</code></pre>
+
+<p>(See also <a href="https://stephlj.github.io/tutorials/Bootstrapping">https://stephlj.github.io/tutorials/Bootstrapping</a> for more information on bootstrapping.)</p>
+
+<p>I&rsquo;m not usually a fan of histograms (see <a href="https://stephlj.github.io/tutorials/HistosVsCDFs">https://stephlj.github.io/tutorials/HistosVsCDFs</a>),
 but for a quick-and-dirty, non-quantitative look at the data, they&rsquo;re ok:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab"><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">PlotHisto</span>(fig_handle, cv_bs, cv_mean, fig_title)
+
+<pre><code class="language-matlab">function PlotHisto(fig_handle, cv_bs, cv_mean, fig_title)
     [n, xout] = hist(cv_bs);
-    n = n <span style="color:#f92672">./</span> length(cv_bs);
+    n = n ./ length(cv_bs);
     subplot(fig_handle)
     bar(xout, n)
-    xlabel(<span style="color:#e6db74">&#39;Coefficient of variation&#39;</span>, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">16</span>)
-    ylabel(<span style="color:#e6db74">&#39;Frequency&#39;</span>, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">16</span>)
-    title(fig_title, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">16</span>)
-    set(gca, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">16</span>)
+    xlabel('Coefficient of variation', 'Fontsize', 16)
+    ylabel('Frequency', 'Fontsize', 16)
+    title(fig_title, 'Fontsize', 16)
+    set(gca, 'Fontsize', 16)
     hold on
-    plot([cv_mean cv_mean], [<span style="color:#ae81ff">0</span> max(n)], <span style="color:#e6db74">&#39;--r&#39;</span>)
-    plot([<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">1</span>], [<span style="color:#ae81ff">0</span> max(n)], <span style="color:#e6db74">&#39;--k&#39;</span>)
+    plot([cv_mean cv_mean], [0 max(n)], '--r')
+    plot([1 1], [0 max(n)], '--k')
     hold off
-<span style="color:#66d9ef">end</span>
+end
 figure
-h1=subplot(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">1</span>)
-PlotHisto(h1, cv_single_bs, cv_single, <span style="color:#e6db74">&#39;Single exp&#39;</span>)
-h2=subplot(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">2</span>)
-PlotHisto(h2, cv_hypo_bs, cv_hypo, <span style="color:#e6db74">&#39;Hypo exp&#39;</span>)
-h3=subplot(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">3</span>)
-PlotHisto(h3, cv_hyper_bs, cv_hyper, <span style="color:#e6db74">&#39;Hyper exp&#39;</span>)
-</code></pre></div><p>Figure 1 shows the resulting histograms of bootstrapped coefficients of variation. As expected,
+h1=subplot(1,3,1)
+PlotHisto(h1, cv_single_bs, cv_single, 'Single exp')
+h2=subplot(1,3,2)
+PlotHisto(h2, cv_hypo_bs, cv_hypo, 'Hypo exp')
+h3=subplot(1,3,3)
+PlotHisto(h3, cv_hyper_bs, cv_hyper, 'Hyper exp')
+</code></pre>
+
+<p>Figure 1 shows the resulting histograms of bootstrapped coefficients of variation. As expected,
 the single exponential data have a coefficient of variation clustered around 1, the hypoexponential clusters
 significantly below 1, and the hyperexponential clusters above 1.
-<figure>
-    <img src="/img/Exponentiality_CVs.png"/> <figcaption>
-            <h4>Histograms of bootstrapped coefficients of variation for an exponential distribution, and combinations of exponentials.</h4>
-        </figcaption>
+
+<figure >
+    
+        <img src="/img/Exponentiality_CVs.png" />
+    
+    
+    <figcaption>
+        <h4>Histograms of bootstrapped coefficients of variation for an exponential distribution, and combinations of exponentials.</h4>
+        
+    </figcaption>
+    
 </figure>
 </p>
+
 <p>Another way to assess which distribution best describes your data is to use
 a P-P plot, which compares the empirical CDF of your data to the theoretical CDF of a fit distribution
 you&rsquo;re testing against. Code for a P-P plot in Matlab can be found in <a href="https://gist.github.com/stephlj/33a909fda440c3d6743d1f133c9ad936">this gist</a>.</p>
+
 <p>How do our three data sets compare to the three distributions? See the <a href="https://gist.github.com/stephlj/b65ee5e91df2606bf2797d04271c08d5">gist</a> for the code
 that generated Figure 2:</p>
-<figure>
-    <img src="/img/Exponentiality_PPplots.png"/> <figcaption>
-            <h4>P-P plots comparing synthetic data to different types of exponential distributions.</h4>
-        </figcaption>
+
+
+<figure >
+    
+        <img src="/img/Exponentiality_PPplots.png" />
+    
+    
+    <figcaption>
+        <h4>P-P plots comparing synthetic data to different types of exponential distributions.</h4>
+        
+    </figcaption>
+    
 </figure>
+
 
 <p>These P-P plots give us more information than the coefficients of variation: if the
 data are well-described by whatever distribution we&rsquo;re testing against, as on the diagonal from
@@ -372,41 +424,53 @@ that tells you something about how your data differ from the theoretical distrib
 For example, if the empirical data are smaller than the theoretical data at high percentiles, such that the P-P results
 fall above the $y=x$ line, as in the top right panel, your data have a heavier tail than the distribution
 you&rsquo;re comparing to.</p>
+
 <p>Looking at Figure 2, we can see first of all that single exponentially distributed data are well-fit
 by all three theoretical distributions. That makes sense; if we add more parameters and more terms, we
 simply over-fit the data. Hyperexponentially distributed data are particularly poorly fit by a single
 exponential, as indicated by the large deviation from the $y=x$ line. Note that we are unable to generate a theoretical hypoexponential distribution for the hyperexponential
 data, because their coefficient of variation is greater than 1, and that means we end up with a negative
 rate constant for $k_2$&mdash;remember that these rate constants must be greater than zero!</p>
+
 <h2 id="concluding-remarks-other-distributions-encountered-in-biology">Concluding remarks: other distributions encountered in biology</h2>
+
 <p>Various kinds of exponential distributions are common in biology and especially in single-molecule measurements. If you&rsquo;re measuring something to do with rates, or time, you&rsquo;ll
 likely be measuring something that is either exponentially distributed or comprises exponentially distributed components.</p>
+
 <p>We note briefly some contexts in which other kinds of distributions
 may arise. In all of these cases, similar approaches (e.g. P-P plots) to those described
 above for exponentials can be used to test whether your data are consistent with some
 theoretical distribution.</p>
+
 <h3 id="geometric-distributions">Geometric distributions</h3>
+
 <p>The geometric distribution is the discretized analog to the exponential distribution. We usually
 assume that the underlying natural process we are measuring is governed by the exponential
 distribution, but often our measurements of said process occur in discretized increments
 (for example, discretized by the frame rate of a microscope camera). Whether you use a geometric
 distribution or an exponential distribution will depend on how much this discretization process
 matters.</p>
+
 <h3 id="gaussian">Gaussian</h3>
+
 <p>Gaussian distributions are another common distribution in biology and in single-molecule
 biophysics&mdash;for example, the intensity of a stable fluorescent molecule over time will be
 Gaussian-distributed around some mean value. We usually assume noise is Gaussian.</p>
+
 <p>Note that a common point of confusion about Gaussian-distributed samples versus exponential samples
 is what the mean value of the samples represents. For a Gaussian-distributed set of measurements (in one dimension),
 the most frequently observed values will cluster around the mean of the Gaussian. For exponentially distributed samples,
 however, most samples will have values less than the mean.</p>
-<h3 id="poissonbinomial">Poisson/Binomial</h3>
+
+<h3 id="poisson-binomial">Poisson/Binomial</h3>
+
 <p>A classic example of a binomial process in biology is dilution of a cytoplasmic factor over the
 course of several generations of cell division. The distribution of how many of these factors
 each daughter cell will have over time will be binomial. Alternatively,
 consider how many mRNAs are produced per unit time. Notice that here we&rsquo;re not interested
 in measuring the <em>wait time to</em> something, even though it sounds like there&rsquo;s a time component here.
 We&rsquo;re really measuring <em>how many</em> of something in a unit of time.</p>
+
 <p><em>Thanks to <a href="http://www.themattjohnson.com">Matt Johnson</a> for teaching me this material, and for
 editing this tutorial for accuracy and clarity!</em></p>
 
@@ -419,12 +483,12 @@ editing this tutorial for accuracy and clarity!</em></p>
   <nav>
   <ul class="pager">
     
-    <li class="previous"><a href="http://stephlj.github.io/tutorials/bootstrapping/"><span
+    <li class="previous"><a href="http://stephlj.github.io/tutorials/Bootstrapping/"><span
       aria-hidden="true">&larr;</span> Bootstrapped error calculations</a></li>
     
 
     
-    <li class="next"><a href="http://stephlj.github.io/tutorials/histosvscdfs/">Exploring the differences between histograms, KDEs and CDFs <span
+    <li class="next"><a href="http://stephlj.github.io/tutorials/HistosVsCDFs/">Exploring the differences between histograms, KDEs and CDFs <span
       aria-hidden="true">&rarr;</span></a></li>
     
   </ul>
@@ -441,7 +505,7 @@ editing this tutorial for accuracy and clarity!</em></p>
   <div class="container">
     <p class="powered-by">
 
-      © 2019, 2020 Stephanie Johnson &middot; 
+      &copy; 2019, 2020 Stephanie Johnson &middot; 
 
       Powered by the <a href="https://github.com/gcushen/hugo-academic" target="_blank">Academic
       theme</a> for <a href="http://gohugo.io" target="_blank">Hugo</a>.

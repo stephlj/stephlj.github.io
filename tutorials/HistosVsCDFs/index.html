@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="theme" content="hugo-academic">
-  <meta name="generator" content="Hugo 0.79.1" />
+  <meta name="generator" content="Hugo 0.18.1" />
   <meta name="author" content="Stephanie L. Johnson, Ph.D.">
   <meta name="description" content="Software Engineer">
 
@@ -34,7 +34,7 @@
   <link rel="icon" type="image/png" href="/img/icon.png">
   <link rel="apple-touch-icon" type="image/png" href="/img/apple-touch-icon.png">
 
-  <link rel="canonical" href="http://stephlj.github.io/tutorials/histosvscdfs/">
+  <link rel="canonical" href="http://stephlj.github.io/tutorials/HistosVsCDFs/">
 
   
 
@@ -159,7 +159,10 @@
 </div>
 
     <div class="article-style" itemprop="articleBody">
-      <p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
+      
+
+<p><a href="https://stephlj.github.io">&lt; <em>Back to homepage</em></a></p>
+
 <p>A question we often want to ask of single-molecule data is whether the
 data fall into one or more clusters. For example, perhaps we have a
 single-molecule FRET system in which each molecule we observe explores
@@ -169,65 +172,94 @@ molecules that explore only two states share either state with the
 three-state population. Perhaps the population-averaged FRET values of
 the different states, if they do form clusters, tells us something
 interesting about our system.</p>
+
 <p>Here we compare three different ways of plotting the data to get a
 sense for how the data cluster: histograms, kernel density estimation
 (KDE) plots, and cumulative distribution functions (CDFs). Histograms
 are the most commonly used tool for this purpose, because they are the
 most intuitive, but they are the least quantitative. CDFs offer the best
 tool, especially for comparisons between data sets.</p>
+
 <p>The code in this tutorial can be found in this
 <a href="https://gist.github.com/stephlj/a818b8d777092dfb08261803bf23ce2f">gist</a>.</p>
+
 <h2 id="generate-data">Generate data</h2>
+
 <p>We start with a synthetic data set drawn from three Gaussians,
 parameterized by means <code>mu(i)</code> and standard deviations <code>sigma(i)</code>,</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">mu    = [<span style="color:#ae81ff">0.45</span> <span style="color:#ae81ff">0.75</span> <span style="color:#ae81ff">0.60</span>];
-sigma = [<span style="color:#ae81ff">0.02</span> <span style="color:#ae81ff">0.03</span> <span style="color:#ae81ff">0.02</span>];
-</code></pre></div><p>We will generate a dataset consisting of 100 samples drawn from the first Gaussian,
+
+<pre><code class="language-matlab">mu    = [0.45 0.75 0.60];
+sigma = [0.02 0.03 0.02];
+</code></pre>
+
+<p>We will generate a dataset consisting of 100 samples drawn from the first Gaussian,
 200 samples from the second Gaussian, and 50 samples from the third:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">n_samples = [<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">50</span>];
-D = @(i) normrnd(mu(i), sigma(i), <span style="color:#ae81ff">1</span>, n_samples(i));
-data = [D(<span style="color:#ae81ff">1</span>), D(<span style="color:#ae81ff">2</span>), D(<span style="color:#ae81ff">3</span>)];
-</code></pre></div><p><a href="" title="From Matt:">comment</a>: &lt;&gt; (Note that Matlab <a href="https://www.mathworks.com/help/matlab/ref/rng.html">sets the PRNG seed to zero on) startup</a> by default.)</p>
+
+<pre><code class="language-matlab">n_samples = [100, 200, 50];
+D = @(i) normrnd(mu(i), sigma(i), 1, n_samples(i));
+data = [D(1), D(2), D(3)];
+</code></pre>
+
 <h2 id="compare-histograms-kdes-and-cdfs">Compare histograms, KDEs, and CDFs</h2>
+
 <p>Given a new dataset, how would you start to explore it? For a 1D-valued
 dataset like this one, a common first step would be to make a histogram. If we
 call Matlab&rsquo;s <code>hist</code> function with default parameters, we might be able to
 guess that there are three Gaussian clusters in the data, though you could also
 guess there are just two.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">figure
-hist(data);  <span style="color:#75715e">% default number and placement of bins</span>
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>);
-ylabel(<span style="color:#e6db74">&#39;Counts&#39;</span>);
-set(gca,<span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
-</code></pre></div><p><figure>
-    <img src="/img/HistsVsCDFs_Hist1.png"/> <figcaption>
-            <h4>Histogram of data using default parameters.</h4>
-        </figcaption>
+
+<pre><code class="language-matlab">figure
+hist(data);  % default number and placement of bins
+xlabel('Value of data');
+ylabel('Counts');
+set(gca,'Fontsize', 14);
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_Hist1.png" />
+    
+    
+    <figcaption>
+        <h4>Histogram of data using default parameters.</h4>
+        
+    </figcaption>
+    
 </figure>
 
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (TODO(mattjj): improve dpi of figure)
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (TODO(mattjj): change caption font size)</p>
+
 <p>What if we had chosen a different set of bins, say, bins 0.075 apart, starting
 at 0 and ending at 1?</p>
+
 <p>This time, we will also normalize the histogram, so that its values sum to
 1.
 To normalize, we divide by the total number of counts and change the y-axis
-label to frequency:
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (NOTE(mattjj): KDEs are <em>automatically</em> normalized with a normalized kernel)</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">figure
-[n, xout] = hist(data, <span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">0.075</span>:<span style="color:#ae81ff">1</span>);
-bar(xout, n <span style="color:#f92672">./</span> sum(n));
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>);
-ylabel(<span style="color:#e6db74">&#39;Frequency&#39;</span>);
-set(gca, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
-xlim([<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span>]);
-</code></pre></div><p><figure>
-    <img src="/img/HistsVsCDFs_Hist2.png"/> <figcaption>
-            <h4>Histogram of data, using custom bin widths and positions.</h4>
-        </figcaption>
+label to frequency:</p>
+
+<pre><code class="language-matlab">figure
+[n, xout] = hist(data, 0:0.075:1);
+bar(xout, n ./ sum(n));
+xlabel('Value of data');
+ylabel('Frequency');
+set(gca, 'Fontsize', 14);
+xlim([0 1]);
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_Hist2.png" />
+    
+    
+    <figcaption>
+        <h4>Histogram of data, using custom bin widths and positions.</h4>
+        
+    </figcaption>
+    
 </figure>
 
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (TODO(mattjj): improve dpi of figure)</p>
+
 <p>Consider if <code>data</code> were a data set you had collected experimentally, and
 you didn&rsquo;t know how many clusters or populations to expect. How would you
 know whether 10 equally spaced bins or bins at 0:0.075:1 was giving you the
@@ -238,6 +270,7 @@ them?
 If you play around with the parameters of the parameters of the three Gaussians
 and the bin widths and locations, you can get a sense for how much visual
 variation there can be.</p>
+
 <p>The parameters used to construct the histogram can have a significant impact on
 its visual impression, and the default of <code>hist</code> to use 10 equally-spaced bins
 is not always the best for identifying structure in any given dataset.
@@ -249,62 +282,93 @@ function</a> has a
 data-dependent automatic binning heuristic (see e.g. the <a href="https://jakevdp.github.io/blog/2012/09/12/dynamic-programming-in-python/">Bayesian Blocks
 algorithm</a>
 for a related idea). It works rather well, as shown in Figure 3:
-<figure>
-    <img src="/img/HistsVsCDFs_Hist3.png"/> <figcaption>
-            <h4>Histogram of data, using Matlab&#39;s histogram() function.</h4>
-        </figcaption>
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_Hist3.png" />
+    
+    
+    <figcaption>
+        <h4>Histogram of data, using Matlab&#39;s histogram() function.</h4>
+        
+    </figcaption>
+    
 </figure>
 
 However, <code>histogram</code> still suffers from the potential for binning artifacts.</p>
+
 <h3 id="kdes">KDEs</h3>
+
 <p>An alternative to histograms is a kernel density estimate (KDE) plot.
 The idea of a KDE plot is: at every data point, plot a little
 Gaussian density, and then sum all the Gaussian densities together.
 (This kind of KDE has a Gaussian kernel, but there are other choices of kernel
-as well.)
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (Symbolically, for a dataset $\{ x_i \}_{i=1}^N$, we can write the overall)
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (density estimate $\hat f(x)$ as a scaled sum of shifted copies of the Gaussian)
-<a href="" title="From Matt:">comment</a>: &lt;&gt; (probability density function,)
-<a href="" title="From Matt:">comment</a>: &lt;&gt; ($$ \hat f(x) = \frac{1}{N} \sum_{i=1}^N \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left( -\frac{(x - x_i)^2}{2 \sigma^2} \right). $$)
-The only parameter to vary, then, is the standard deviation parameter of the
+as well.)</p>
+
+<p>The only parameter to vary, then, is the standard deviation parameter of the
 individual Gaussian densities, which is called the <em>bandwidth</em>.</p>
+
 <p>Let&rsquo;s start with a bandwidth of 0.05:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">[f1,k1] = ksdensity(data,<span style="color:#e6db74">&#39;bandwidth&#39;</span>,<span style="color:#ae81ff">0.05</span>);
+
+<pre><code class="language-matlab">[f1,k1] = ksdensity(data,'bandwidth',0.05);
 figure
-plot(x1,f1,<span style="color:#e6db74">&#39;-b&#39;</span>,<span style="color:#e6db74">&#39;Linewidth&#39;</span>,<span style="color:#ae81ff">2</span>)
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>)
-ylabel(<span style="color:#e6db74">&#39;Density&#39;</span>)
-set(gca,<span style="color:#e6db74">&#39;Fontsize&#39;</span>,<span style="color:#ae81ff">14</span>)
-</code></pre></div><p>Figure 2 shows the resulting KDE. The shape of the KDE should be reminiscent of the histograms
+plot(x1,f1,'-b','Linewidth',2)
+xlabel('Value of data')
+ylabel('Density')
+set(gca,'Fontsize',14)
+</code></pre>
+
+<p>Figure 2 shows the resulting KDE. The shape of the KDE should be reminiscent of the histograms
 in the previous section; they display the data in a conceptually similar way.</p>
-<figure>
-    <img src="/img/HistsVsCDFs_OneKDE.png"/> <figcaption>
-            <h4>Kernel density estimate  with bandwidth 0.05.</h4>
-        </figcaption>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_OneKDE.png" />
+    
+    
+    <figcaption>
+        <h4>Kernel density estimate  with bandwidth 0.05.</h4>
+        
+    </figcaption>
+    
 </figure>
+
 
 <p>What happens if we try a range of different bandwidths?</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">bandwidths = [<span style="color:#ae81ff">0.05</span>, <span style="color:#ae81ff">0.1</span>, <span style="color:#ae81ff">0.01</span>, <span style="color:#ae81ff">0.001</span>];
+
+<pre><code class="language-matlab">bandwidths = [0.05, 0.1, 0.01, 0.001];
 
 figure
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>);
-ylabel(<span style="color:#e6db74">&#39;Density&#39;</span>)
-set(gca, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
+xlabel('Value of data');
+ylabel('Density')
+set(gca, 'Fontsize', 14);
 hold on
-<span style="color:#66d9ef">for</span> bandwidth = bandwidths
-    [f, x] = ksdensity(data, <span style="color:#e6db74">&#39;bandwidth&#39;</span>, bandwidth);
-    h = plot(x, f, <span style="color:#e6db74">&#39;-&#39;</span>, <span style="color:#e6db74">&#39;Linewidth&#39;</span>, <span style="color:#ae81ff">2</span>);
-    legend(h, sprintf(<span style="color:#e6db74">&#39;bw = %0.2f&#39;</span>, bandwidth));
-<span style="color:#66d9ef">end</span>
-</code></pre></div><figure>
-    <img src="/img/HistsVsCDFs_KDEs.png"/> <figcaption>
-            <h4>Kernel density estimates  with various bandwidths.</h4>
-        </figcaption>
+for bandwidth = bandwidths
+    [f, x] = ksdensity(data, 'bandwidth', bandwidth);
+    h = plot(x, f, '-', 'Linewidth', 2);
+    legend(h, sprintf('bw = %0.2f', bandwidth));
+end
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_KDEs.png" />
+    
+    
+    <figcaption>
+        <h4>Kernel density estimates  with various bandwidths.</h4>
+        
+    </figcaption>
+    
 </figure>
+
 
 <p>A good way of determining how robustly you can separate different
 clusters of data is to vary the bandwidth, and see which peaks appear and
 disappear.</p>
+
 <p>KDEs avoid the bin size and location details of histograms, since they have
 only one bandwidth parameter to adjust, and can give a more consistent visual
 impression.
@@ -312,60 +376,87 @@ Moreover, the visual impression can&rsquo;t change significantly due to small ch
 in the bandwidth.
 But your interpretation of the data is still subject to a choice of smoothing
 parameter, and it would be better to have a parameter-free visualization method.</p>
+
 <h3 id="cdfs">CDFs</h3>
+
 <p>A cumulative distribution function (CDF) measures the integral under a PDF
 (probability density function) from $-\infty$ up to a particular value.
 The PDF is the expression we most immediately associate with common
 distributions; for example, the Gaussian distribution has a PDF of
 $$ f(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp \left(- \frac{(x-\mu)^2}{2 \sigma^2} \right), $$
 and so its CDF is defined as
-$$ F(x) = \int_{-\infty}^x f(t) , \mathrm{d}t. $$
+$$ F(x) = \int_{-\infty}^x f(t) \, \mathrm{d}t. $$
 The way to think about the information in a CDF is that for a value $x$,
 $F(x)$ tells you how frequent a value smaller than $x$ is.</p>
+
 <p>CDFs have no smoothing or binning parameters to vary, and therefore provide a
 good way to visualize new data or compare different datasets.
 Given a data sample, we can construct an <em>empirical CDF</em> by averaging step
 functions,
 $$ \widehat F(x) = \frac{1}{N} \sum_{i=1}^N I[x_i &lt; x], \qquad I[a &lt; b] = \begin{cases} 1 &amp; a &lt; b \\\ 0 &amp; \text{otherwise} \end{cases}. $$
 We can compute an empirical CDF in Matlab by using the <a href="https://www.mathworks.com/help/stats/ecdf.html"><code>ecdf</code> function</a>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">[c, xc] = ecdf(data);  <span style="color:#75715e">% computes an empirical CDF</span>
+
+<pre><code class="language-matlab">[c, xc] = ecdf(data);  % computes an empirical CDF
 figure
-plot(xc, c, <span style="color:#e6db74">&#39;Linewidth&#39;</span>, <span style="color:#ae81ff">2</span>);
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>);
-ylabel(<span style="color:#e6db74">&#39;Cumulative probability&#39;</span>);
-set(gca, <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
-ylim([<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span>]);
-xlim([<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span>]);
-</code></pre></div><figure>
-    <img src="/img/HistsVsCDFs_CDF.png"/> <figcaption>
-            <h4>Cumulative probability of data.</h4>
-        </figcaption>
+plot(xc, c, 'Linewidth', 2);
+xlabel('Value of data');
+ylabel('Cumulative probability');
+set(gca, 'Fontsize', 14);
+ylim([0 1]);
+xlim([0 1]);
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_CDF.png" />
+    
+    
+    <figcaption>
+        <h4>Cumulative probability of data.</h4>
+        
+    </figcaption>
+    
 </figure>
+
 
 <p>Figure 5 might look a bit unfamiliar, but a CDF shows us the same information as a
 KDE or histogram, without the bias that might come from poorly-chosen
 parameters.</p>
+
 <p>To gain a more intuitive understanding of what the CDF represents, we can
 plot one on the same set of axes as a KDE:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab">figure
+
+<pre><code class="language-matlab">figure
 ax = plotyy(x3, f3, xc, c);
-xlabel(<span style="color:#e6db74">&#39;Value of data&#39;</span>);
-ylabel(ax(<span style="color:#ae81ff">2</span>), <span style="color:#e6db74">&#39;Cumulative probability&#39;</span>);
-set(ax(<span style="color:#ae81ff">2</span>), <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
-ylabel(ax(<span style="color:#ae81ff">1</span>), <span style="color:#e6db74">&#39;Density&#39;</span>);
-set(ax(<span style="color:#ae81ff">1</span>), <span style="color:#e6db74">&#39;Fontsize&#39;</span>, <span style="color:#ae81ff">14</span>);
-ylim(ax(<span style="color:#ae81ff">1</span>), [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">8</span>]);
-xlim(ax(<span style="color:#ae81ff">1</span>), [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span>]);
-xlim(ax(<span style="color:#ae81ff">2</span>), [<span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span>]);
-</code></pre></div><figure>
-    <img src="/img/HistsVsCDFs_CDFvsKDE.png"/> <figcaption>
-            <h4>Cumulative probability of data compared to a KDE.</h4>
-        </figcaption>
+xlabel('Value of data');
+ylabel(ax(2), 'Cumulative probability');
+set(ax(2), 'Fontsize', 14);
+ylabel(ax(1), 'Density');
+set(ax(1), 'Fontsize', 14);
+ylim(ax(1), [0 8]);
+xlim(ax(1), [0 1]);
+xlim(ax(2), [0 1]);
+</code></pre>
+
+
+<figure >
+    
+        <img src="/img/HistsVsCDFs_CDFvsKDE.png" />
+    
+    
+    <figcaption>
+        <h4>Cumulative probability of data compared to a KDE.</h4>
+        
+    </figcaption>
+    
 </figure>
+
 
 <p>Peaks in the KDE correspond to steep slopes in the CDF. That is, clusters in
 the data appear as steep slopes, where counts are accumulating quickly in the
 CDF at a certain $x$ value.</p>
+
 <p>Visualizing both a CDF and a KDE (or a few KDEs with different bandwidth
 settings) on the same axes can give us multiple views on the same data, and let
 us check that our interpretations are consistent across several views rather
@@ -373,7 +464,9 @@ than being artifacts of some particular parameter choices.
 From this plot we might feel confident concluding that there are at least two
 clusters in the data, and likely a third, less populated, cluster in between
 the two main clusters.</p>
+
 <h2 id="data-cluster-assignment">Data cluster assignment</h2>
+
 <p>We conclude with some remarks on a related problem to the identification of clusters in a data set,
 which is the
 assignment of each data point to a particular cluster.
@@ -394,6 +487,7 @@ Then we could assign each data point to the cluster which assigns highest
 density to that data point.
 An example is given at the end of the
 <a href="https://gist.github.com/stephlj/a818b8d777092dfb08261803bf23ce2f">gist</a>.</p>
+
 <p><em>Thanks to <a href="http://www.themattjohnson.com">Matt Johnson</a> for teaching me this material, and for
 editing this tutorial for accuracy and clarity!</em></p>
 
@@ -406,7 +500,7 @@ editing this tutorial for accuracy and clarity!</em></p>
   <nav>
   <ul class="pager">
     
-    <li class="previous"><a href="http://stephlj.github.io/tutorials/exponentiality/"><span
+    <li class="previous"><a href="http://stephlj.github.io/tutorials/Exponentiality/"><span
       aria-hidden="true">&larr;</span> Are my data exponentially distributed?</a></li>
     
 
@@ -425,7 +519,7 @@ editing this tutorial for accuracy and clarity!</em></p>
   <div class="container">
     <p class="powered-by">
 
-      © 2019, 2020 Stephanie Johnson &middot; 
+      &copy; 2019, 2020 Stephanie Johnson &middot; 
 
       Powered by the <a href="https://github.com/gcushen/hugo-academic" target="_blank">Academic
       theme</a> for <a href="http://gohugo.io" target="_blank">Hugo</a>.
